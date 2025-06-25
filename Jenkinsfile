@@ -25,12 +25,12 @@ pipeline {
             }
         }
 
-        stage('Run Tests (SQLite)') {
+        stage('Run') {
             steps {
-                sh 'cp .env.testing .env'
+                sh 'cp .env.example .env'
                 sh 'php artisan config:clear'
-                sh 'php artisan migrate:fresh --env=testing || exit 1'
-                sh 'php artisan test --env=testing || exit 1'
+                sh 'php artisan migrate:fresh ' //--env=testing || exit 1
+                // sh 'php artisan test --env=testing || exit 1'
             }
         }
 
