@@ -31,7 +31,7 @@ services:
     image: mysql:8
     container_name: laravel-mysql
     environment:
-      MYSQL_DATABASE: korb-db
+      MYSQL_DATABASE: korbdaven-db
       MYSQL_ROOT_PASSWORD: Hello@123
     ports:
       - "3307:3306"
