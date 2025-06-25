@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DEPLOY_PLAYBOOK = 'ansible/deploy-laravel.yml'
-        RECIPIENTS = 'srengty@gmail.com'
+        RECIPIENTS = 'srengty@gmail.com, korbdaven@gmail.com'
     }
 
     triggers {
