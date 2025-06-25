@@ -1,16 +1,29 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'mlocati/php-extension-installer:latest' // this is temporary, see below
+        }
+    }
 
     environment {
         DEPLOY_PLAYBOOK = 'ansible/deploy-laravel.yml'
-        RECIPIENTS = 'srengty@gmail.com, korbdaven@gmail.com'
+        RECIPIENTS = 'srengty@gmail.com korbdaven@gmail.com'
     }
 
     triggers {
-        pollSCM('H/5 * * * *') // Poll every 5 minutes
+        pollSCM('H/5 * * * *')
     }
 
     stages {
+        stage('Install PHP with Extensions') {
+            steps {
+                sh '''
+                    apt-get update && apt-get install -y unzip git curl php-cli php-mbstring php-xml php-dom php-tokenizer php-sqlite3 php-mysql php-curl
+                    php -m
+                '''
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'master',
