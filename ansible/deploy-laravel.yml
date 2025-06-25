@@ -1,0 +1,51 @@
+---
+- name: Deploy Laravel app in Kubernetes Web container
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+    - name: Get Laravel pod name
+      shell: kubectl get pod -l app=laravel-app -o jsonpath="{.items[0].metadata.name}"
+      register: laravel_pod_name
+
+    - name: Git pull inside web container
+      shell: |
+        kubectl exec -it {{ laravel_pod_name.stdout }} -c app -- bash -c "
+          cd /var/www/html &&
+          git reset --hard &&
+          git pull
+        "
+      args:
+        executable: /bin/bash
+
+    - name: Run Composer install
+      shell: |
+        kubectl exec -it {{ laravel_pod_name.stdout }} -c app -- bash -c "
+          cd /var/www/html &&
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+        "
+
+    - name: Run NPM build
+      shell: |
+        kubectl exec -it {{ laravel_pod_name.stdout }} -c app -- bash -c "
+          cd /var/www/html &&
+          npm install &&
+          npm run build
+        "
+
+    - name: Run Laravel test using SQLite
+      shell: |
+        kubectl exec -it {{ laravel_pod_name.stdout }} -c app -- bash -c "
+          cd /var/www/html &&
+          cp .env.testing .env &&
+          php artisan config:clear &&
+          php artisan migrate:fresh --env=testing &&
+          php artisan test --env=testing
+        "
+
+    - name: Backup MySQL database
+      shell: |
+        TIMESTAMP=$(date +%Y%m%d_%H%M%S) &&
+        kubectl exec -it {{ laravel_pod_name.stdout }} -c app -- bash -c "
+          mysqldump -u root -pHello@123 korbdaven-db > /var/www/html/storage/backups/backup_$TIMESTAMP.sql
+        "
