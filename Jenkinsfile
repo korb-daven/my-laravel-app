@@ -13,8 +13,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/yourname/your-laravel-repo.git'
+                git branch: 'master',
+                    url: 'https://github.com/korb-daven/my-laravel-app.git'
             }
         }
 
